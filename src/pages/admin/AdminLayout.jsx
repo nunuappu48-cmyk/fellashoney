@@ -9,7 +9,8 @@ import {
   ArrowLeft,
   ShieldCheck,
   Store,
-  LogOut
+  LogOut,
+  Coins
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -25,6 +26,7 @@ export const AdminLayout = () => {
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Reviews', path: '/admin/reviews', icon: MessageSquare },
+    { name: 'Crypto & QR', path: '/admin/crypto', icon: Coins },
   ]
 
   return (

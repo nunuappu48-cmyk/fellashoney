@@ -307,12 +307,39 @@ export const Account = () => {
               </button>
             </div>
 
-            {/* Shipping Info */}
-            <div className="bg-cream-50 p-3.5 rounded-2xl text-xs space-y-1 text-amberBrown-700 border border-honey-200">
+            {/* Shipping & Payment Info */}
+            <div className="bg-cream-50 p-3.5 rounded-2xl text-xs space-y-1.5 text-amberBrown-700 border border-honey-200">
               <p className="font-bold text-amberBrown-900">Recipient: {selectedOrder.shipping_name}</p>
               <p>{selectedOrder.shipping_address}, {selectedOrder.shipping_city} {selectedOrder.shipping_postal_code}</p>
               <p>Phone: {selectedOrder.shipping_phone}</p>
-              <p>Payment Method: {selectedOrder.payment_method} ({selectedOrder.payment_status})</p>
+              <p>Payment Method: <strong className="text-amberBrown-950">{selectedOrder.payment_method}</strong> ({selectedOrder.payment_status})</p>
+              {selectedOrder.transaction_id && (
+                <p className="font-mono text-[11px] text-amberBrown-800 break-all">
+                  TXID / Hash: {selectedOrder.transaction_id}
+                </p>
+              )}
+              {selectedOrder.payment_proof && (
+                <div className="pt-2 border-t border-honey-200/80 space-y-1">
+                  <span className="font-bold text-amberBrown-900 block text-[11px]">
+                    Uploaded Transaction Screenshot:
+                  </span>
+                  <a
+                    href={selectedOrder.payment_proof}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-block group relative"
+                  >
+                    <img
+                      src={selectedOrder.payment_proof}
+                      alt="Payment Receipt"
+                      className="w-24 h-24 object-cover rounded-xl border border-honey-300 shadow-2xs group-hover:opacity-90 transition-opacity"
+                    />
+                    <span className="text-[10px] text-honey-800 font-bold block mt-0.5 group-hover:underline">
+                      Click to view full image ↗
+                    </span>
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Items */}

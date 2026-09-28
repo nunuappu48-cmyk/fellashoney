@@ -115,6 +115,23 @@ export const OrderSuccess = () => {
               <h3 className="font-bold text-amberBrown-950 mb-1">Payment Information</h3>
               <p className="text-amberBrown-900 font-semibold">{order.payment_method}</p>
               <p className="text-amberBrown-600">Status: <strong className="text-honey-700">{order.payment_status}</strong></p>
+              {order.transaction_id && (
+                <p className="text-amberBrown-600 font-mono text-[11px] truncate max-w-xs mt-0.5">
+                  TXID: {order.transaction_id}
+                </p>
+              )}
+              {order.payment_proof && (
+                <div className="mt-2 pt-2 border-t border-honey-200 flex items-center gap-2">
+                  <img
+                    src={order.payment_proof}
+                    alt="Uploaded Crypto Proof"
+                    className="w-9 h-9 rounded-lg object-cover border border-honey-300 shadow-2xs"
+                  />
+                  <span className="text-[11px] font-bold text-natureGreen-700">
+                    Payment receipt verified & attached ✓
+                  </span>
+                </div>
+              )}
               <p className="text-amberBrown-600 mt-1 flex items-center gap-1">
                 <Phone className="w-3.5 h-3.5 text-honey-600" /> {order.shipping_phone}
               </p>

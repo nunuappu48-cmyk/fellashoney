@@ -10,7 +10,14 @@ import {
   Phone,
   Mail,
   MapPin,
-  X
+  X,
+  Coins,
+  Camera,
+  Copy,
+  Check,
+  ExternalLink,
+  ShieldCheck,
+  Download
 } from 'lucide-react'
 import { orderService } from '../../services/orderService'
 import { useToast } from '../../context/ToastContext'
@@ -25,6 +32,8 @@ export const AdminOrders = () => {
   const [selectedStatus, setSelectedStatus] = useState('All')
   const [search, setSearch] = useState('')
   const [activeOrderModal, setActiveOrderModal] = useState(null)
+  const [screenshotModal, setScreenshotModal] = useState(null)
+  const [copiedTx, setCopiedTx] = useState(false)
   const { addToast } = useToast()
 
   useEffect(() => {
@@ -41,6 +50,31 @@ export const AdminOrders = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleApprovePayment = async (order) => {
+    try {
+      await orderService.updateOrderStatus(order.id, 'Confirmed')
+      setOrders(prev =>
+        prev.map(o => (o.id === order.id ? { ...o, status: 'Confirmed', payment_status: 'Completed' } : o))
+      )
+      if (activeOrderModal?.id === order.id) {
+        setActiveOrderModal(prev => ({ ...prev, status: 'Confirmed', payment_status: 'Completed' }))
+      }
+      if (screenshotModal?.id === order.id) {
+        setScreenshotModal(prev => ({ ...prev, status: 'Confirmed', payment_status: 'Completed' }))
+      }
+      addToast(`Payment verified for order ${order.order_number}! Marked as Confirmed. 🍯`, 'success')
+    } catch (err) {
+      addToast('Failed to update payment status', 'error')
+    }
+  }
+
+  const handleCopyTx = (txid) => {
+    navigator.clipboard.writeText(txid)
+    setCopiedTx(true)
+    addToast('TXID copied to clipboard!', 'success')
+    setTimeout(() => setCopiedTx(false), 2000)
   }
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -156,9 +190,22 @@ export const AdminOrders = () => {
                     {formatCurrency(order.total)}
                   </td>
                   <td className="p-4">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-honey-100 text-amberBrown-800">
-                      {order.payment_method}
-                    </span>
+                    <div className="space-y-1">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-honey-100 text-amberBrown-800 block w-fit">
+                        {order.payment_method}
+                      </span>
+                      {order.payment_proof && (
+                        <button
+                          type="button"
+                          onClick={() => setScreenshotModal(order)}
+                          className="px-2 py-0.5 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-950 text-[10px] font-bold flex items-center gap-1 transition-colors border border-amber-300 shadow-2xs"
+                          title="View customer payment proof screenshot"
+                        >
+                          <Camera className="w-3 h-3 text-amber-700" />
+                          <span>📸 View Proof</span>
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="p-4">
                     <select
@@ -211,9 +258,24 @@ export const AdminOrders = () => {
                 </span>
               </div>
 
-              <div className="text-xs text-amberBrown-700">
+              <div className="text-xs text-amberBrown-700 space-y-1">
                 <p className="font-bold text-amberBrown-950">{order.shipping_name}</p>
                 <p className="text-amberBrown-500">{order.shipping_address}, {order.shipping_city}</p>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="px-2 py-0.5 rounded bg-honey-100 text-amberBrown-800 text-[10px] font-semibold">
+                    {order.payment_method}
+                  </span>
+                  {order.payment_proof && (
+                    <button
+                      type="button"
+                      onClick={() => setScreenshotModal(order)}
+                      className="px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-[10px] flex items-center gap-1 border border-amber-300"
+                    >
+                      <Camera className="w-3 h-3 text-amber-700" />
+                      <span>📸 View Screenshot</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-honey-200">
@@ -234,7 +296,7 @@ export const AdminOrders = () => {
                   onClick={() => setActiveOrderModal(order)}
                   className="px-3 py-1.5 bg-honey-100 text-amberBrown-900 rounded-lg text-xs font-bold"
                 >
-                  View Items
+                  View Details
                 </button>
               </div>
             </div>
@@ -277,6 +339,50 @@ export const AdminOrders = () => {
                 <Mail className="w-3.5 h-3.5 text-honey-600" />
                 {activeOrderModal.shipping_email}
               </p>
+              <div className="pt-2 border-t border-honey-200 space-y-1">
+                <p className="text-amberBrown-900 font-bold flex items-center gap-1.5">
+                  Payment: {activeOrderModal.payment_method}
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    activeOrderModal.payment_status === 'Completed'
+                      ? 'bg-natureGreen-100 text-natureGreen-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {activeOrderModal.payment_status}
+                  </span>
+                </p>
+                {activeOrderModal.transaction_id && (
+                  <p className="font-mono text-[11px] text-amberBrown-800 break-all">
+                    TXID: {activeOrderModal.transaction_id}
+                  </p>
+                )}
+                {activeOrderModal.payment_proof && (
+                  <div className="mt-2 p-2.5 bg-white rounded-xl border border-honey-300 space-y-2 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-amberBrown-950 text-xs flex items-center gap-1">
+                        <Coins className="w-3.5 h-3.5 text-amber-600" />
+                        Crypto Transaction Screenshot
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setScreenshotModal(activeOrderModal)}
+                        className="text-[11px] text-honey-800 font-bold hover:underline flex items-center gap-0.5"
+                      >
+                        Enlarge & Inspect ↗
+                      </button>
+                    </div>
+                    <div
+                      onClick={() => setScreenshotModal(activeOrderModal)}
+                      className="block overflow-hidden rounded-lg border border-honey-200 cursor-pointer group"
+                    >
+                      <img
+                        src={activeOrderModal.payment_proof}
+                        alt="Customer Crypto Transaction Proof"
+                        className="w-full max-h-48 object-contain bg-cream-50 group-hover:scale-102 transition-transform"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
               {activeOrderModal.delivery_notes && (
                 <p className="pt-1 text-[11px] italic text-amberBrown-600 border-t border-honey-200">
                   Note: "{activeOrderModal.delivery_notes}"
@@ -333,6 +439,105 @@ export const AdminOrders = () => {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Full-Screen Crypto Screenshot Inspection Modal */}
+      {screenshotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-amberBrown-950/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-honey-300 shadow-2xl space-y-5 max-h-[95vh] flex flex-col">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-honey-100">
+              <div>
+                <h3 className="font-serif font-black text-xl text-amberBrown-950 flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-honey-700" />
+                  <span>Payment Screenshot #{screenshotModal.order_number}</span>
+                </h3>
+                <p className="text-xs text-amberBrown-500 font-medium">
+                  Submitted by {screenshotModal.shipping_name} ({screenshotModal.shipping_email}) • {formatCurrency(screenshotModal.total)}
+                </p>
+              </div>
+              <button
+                onClick={() => setScreenshotModal(null)}
+                className="p-1 text-amberBrown-400 hover:text-amberBrown-800 rounded-lg text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Info Pills */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="px-2.5 py-1 bg-honey-100 text-amberBrown-900 font-bold rounded-lg border border-honey-200">
+                Method: {screenshotModal.payment_method}
+              </span>
+              <span className={`px-2.5 py-1 font-bold rounded-lg border ${
+                screenshotModal.payment_status === 'Completed'
+                  ? 'bg-natureGreen-100 text-natureGreen-800 border-natureGreen-300'
+                  : 'bg-amber-100 text-amber-800 border-amber-300'
+              }`}>
+                Payment: {screenshotModal.payment_status}
+              </span>
+              {screenshotModal.transaction_id && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-cream-100 rounded-lg border border-honey-200 font-mono text-[11px] text-amberBrown-900">
+                  <span className="font-bold">TXID:</span>
+                  <span className="truncate max-w-[160px]">{screenshotModal.transaction_id}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyTx(screenshotModal.transaction_id)}
+                    className="hover:text-honey-700"
+                    title="Copy TXID"
+                  >
+                    {copiedTx ? <Check className="w-3 h-3 text-natureGreen-600" /> : <Copy className="w-3 h-3" />}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Main Screenshot Container */}
+            <div className="flex-1 overflow-y-auto min-h-[250px] bg-amberBrown-950/5 rounded-2xl p-3 border border-honey-200 flex items-center justify-center">
+              <img
+                src={screenshotModal.payment_proof}
+                alt="Transaction Proof Screenshot"
+                className="max-w-full max-h-[55vh] object-contain rounded-xl shadow-soft"
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-2 border-t border-honey-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <a
+                href={screenshotModal.payment_proof}
+                target="_blank"
+                rel="noreferrer"
+                download={`receipt-${screenshotModal.order_number}.png`}
+                className="px-4 py-2.5 bg-cream-100 hover:bg-honey-100 text-amberBrown-800 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Open / Download Original</span>
+              </a>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setScreenshotModal(null)}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-cream-100 hover:bg-honey-100 text-amberBrown-800 text-xs font-bold rounded-xl"
+                >
+                  Close
+                </button>
+                {screenshotModal.status !== 'Confirmed' && screenshotModal.status !== 'Delivered' && (
+                  <button
+                    type="button"
+                    onClick={() => handleApprovePayment(screenshotModal)}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-natureGreen-600 hover:bg-natureGreen-700 text-white text-xs font-black rounded-xl shadow-honey-sm flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Approve Payment & Confirm Order</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
           </div>
         </div>
       )}

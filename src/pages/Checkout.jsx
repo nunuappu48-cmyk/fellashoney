@@ -1,10 +1,30 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Truck, CreditCard, ShieldCheck, CheckCircle2, ArrowLeft, Lock, Sparkles, Building, User, Mail, Phone, MapPin } from 'lucide-react'
+import {
+  Truck,
+  CreditCard,
+  ShieldCheck,
+  CheckCircle2,
+  ArrowLeft,
+  Lock,
+  Sparkles,
+  Building,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Coins,
+  Copy,
+  Check,
+  UploadCloud,
+  Trash2,
+  AlertCircle
+} from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { orderService } from '../services/orderService'
+import { cryptoService } from '../services/cryptoService'
 import { formatCurrency } from '../utils/formatters'
 
 export const Checkout = () => {
@@ -15,6 +35,28 @@ export const Checkout = () => {
 
   const [loading, setLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery')
+
+  // Live Crypto Settings from cryptoService
+  const [cryptoList, setCryptoList] = useState(() =>
+    cryptoService.getCryptoSettings().filter(c => c.is_active !== false)
+  )
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setCryptoList(cryptoService.getCryptoSettings().filter(c => c.is_active !== false))
+    }
+    window.addEventListener('crypto-settings-updated', handleUpdate)
+    return () => window.removeEventListener('crypto-settings-updated', handleUpdate)
+  }, [])
+
+  // Crypto State
+  const [selectedCrypto, setSelectedCrypto] = useState(() => cryptoList[0]?.id || 'usdt-trc20')
+  const [copiedAddress, setCopiedAddress] = useState(false)
+  const [cryptoProofImage, setCryptoProofImage] = useState(null)
+  const [cryptoProofFileName, setCryptoProofFileName] = useState('')
+  const [cryptoTxId, setCryptoTxId] = useState('')
+
+  const activeCrypto = cryptoList.find(c => c.id === selectedCrypto) || cryptoList[0]
 
   // Form State
   const [formData, setFormData] = useState({
@@ -27,6 +69,51 @@ export const Checkout = () => {
     shipping_postal_code: '',
     delivery_notes: ''
   })
+
+  // Copy Address Handler
+  const handleCopyAddress = (addr) => {
+    try {
+      navigator.clipboard.writeText(addr)
+      setCopiedAddress(true)
+      addToast('Deposit address copied to clipboard! 📋', 'success')
+      setTimeout(() => setCopiedAddress(false), 3000)
+    } catch {
+      addToast('Please select and copy address manually', 'info')
+    }
+  }
+
+  // Screenshot Upload Handler
+  const handleProofUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      addToast('Please upload an image file (PNG, JPG, WEBP)', 'error')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      addToast('Image size should be less than 5MB', 'error')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      setCryptoProofImage(reader.result)
+      setCryptoProofFileName(file.name)
+      addToast('Transaction screenshot attached! 📸', 'success')
+    }
+    reader.onerror = () => {
+      addToast('Failed to read image file. Please try again.', 'error')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveProof = () => {
+    setCryptoProofImage(null)
+    setCryptoProofFileName('')
+    addToast('Screenshot removed', 'info')
+  }
 
   // Redirect if cart is empty
   if (items.length === 0) {
@@ -60,18 +147,34 @@ export const Checkout = () => {
       return
     }
 
+    if (paymentMethod === 'Cryptocurrency' && !cryptoProofImage) {
+      addToast('Please upload a screenshot of your crypto transaction receipt before placing order.', 'error')
+      return
+    }
+
     setLoading(true)
 
     try {
+      const selectedCoin = cryptoList.find(c => c.id === selectedCrypto) || cryptoList[0] || { name: 'USDT (TRC-20)' }
+
       const orderPayload = {
         user_id: user?.id || null,
         subtotal,
         delivery_fee: deliveryFee,
         discount: discountAmount,
         total,
-        payment_method: paymentMethod,
-        payment_status: paymentMethod === 'Cash on Delivery' ? 'Pending' : 'Completed',
-        ...formData
+        payment_method: paymentMethod === 'Cryptocurrency' ? `Cryptocurrency (${selectedCoin.name})` : paymentMethod,
+        payment_status: paymentMethod === 'Cash on Delivery' ? 'Pending' : (paymentMethod === 'Cryptocurrency' ? 'Pending Verification' : 'Completed'),
+        payment_proof: cryptoProofImage || null,
+        transaction_id: cryptoTxId.trim() || null,
+        crypto_details: paymentMethod === 'Cryptocurrency' ? {
+          coin: selectedCoin.name,
+          network: selectedCoin.network,
+          address: selectedCoin.address,
+          txid: cryptoTxId.trim() || null
+        } : null,
+        ...formData,
+        delivery_notes: formData.delivery_notes + (paymentMethod === 'Cryptocurrency' && cryptoTxId ? ` [Crypto TXID: ${cryptoTxId.trim()}]` : '')
       }
 
       const createdOrder = await orderService.createOrder(orderPayload, items)
@@ -341,6 +444,217 @@ export const Checkout = () => {
                   </p>
                 </div>
               </label>
+
+              {/* Cryptocurrency Payment */}
+              <div
+                className={`rounded-2xl border transition-all overflow-hidden ${
+                  paymentMethod === 'Cryptocurrency'
+                    ? 'border-honey-500 bg-honey-50/40 shadow-honey-sm'
+                    : 'border-honey-200 hover:bg-cream-50'
+                }`}
+              >
+                <label className="flex items-start gap-3.5 p-4 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    value="Cryptocurrency"
+                    checked={paymentMethod === 'Cryptocurrency'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mt-1 accent-honey-600 w-4 h-4"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-amberBrown-950">
+                          Cryptocurrency (USDT / BTC / ETH / SOL / BNB)
+                        </span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 flex items-center gap-1">
+                        <Coins className="w-3 h-3 text-amber-700" />
+                        Web3 Pay
+                      </span>
+                    </div>
+                    <p className="text-xs text-amberBrown-600 mt-0.5">
+                      Pay via USDT, Bitcoin, Ethereum, Solana, or BNB and upload your payment transaction screenshot.
+                    </p>
+                  </div>
+                </label>
+
+                {/* Expanded Crypto Details */}
+                {paymentMethod === 'Cryptocurrency' && (
+                  <div className="px-4 pb-5 pt-1 space-y-4 border-t border-honey-200/70 animate-fadeIn">
+                    
+                    {/* Coin Selector Pills */}
+                    <div>
+                      <label className="block text-xs font-bold text-amberBrown-900 mb-2">
+                        Select Cryptocurrency & Network:
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {cryptoList.map((coin) => (
+                          <button
+                            type="button"
+                            key={coin.id}
+                            onClick={() => setSelectedCrypto(coin.id)}
+                            className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 ${
+                              selectedCrypto === coin.id
+                                ? 'border-amberBrown-900 bg-white shadow-xs ring-2 ring-honey-500'
+                                : 'border-honey-200 bg-cream-50/80 hover:bg-white text-amberBrown-700'
+                            }`}
+                          >
+                            <span className={`w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center shrink-0 ${coin.iconColor}`}>
+                              {coin.symbol.slice(0, 3)}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-amberBrown-950 truncate">{coin.name}</p>
+                              <p className="text-[10px] text-amberBrown-500 truncate">{coin.network}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Deposit Address Box with QR Code */}
+                    {activeCrypto && (
+                      <div className="bg-white rounded-2xl p-4 border border-honey-300 shadow-soft-sm space-y-3">
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                          
+                          {/* QR Code */}
+                          <div className="shrink-0 p-2 bg-cream-50 border border-honey-200 rounded-xl shadow-2xs text-center">
+                            <img
+                              src={
+                                activeCrypto.qr_image ||
+                                `https://api.qrserver.com/v1/create-qr-code/?size=130x130&margin=2&data=${encodeURIComponent(
+                                  activeCrypto.address || ''
+                                )}`
+                              }
+                              alt={`${activeCrypto.name} QR`}
+                              className="w-28 h-28 object-contain rounded-lg mx-auto"
+                              loading="lazy"
+                            />
+                            <span className="text-[10px] font-bold text-amberBrown-500 block mt-1">Scan & Pay</span>
+                          </div>
+
+                          {/* Address & Copy Details */}
+                          <div className="flex-1 space-y-2 min-w-0 w-full">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-honey-800">
+                                {activeCrypto.network} Deposit Address
+                              </span>
+                              <span className="text-[11px] text-amberBrown-500">{activeCrypto.note}</span>
+                            </div>
+
+                            <div className="p-2.5 bg-cream-100 rounded-xl border border-honey-200 font-mono text-xs text-amberBrown-950 break-all select-all flex items-center justify-between gap-2">
+                              <span>{activeCrypto.address}</span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleCopyAddress(activeCrypto.address)}
+                              className="w-full py-2 px-3 bg-amberBrown-900 hover:bg-amberBrown-950 text-honey-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-2xs active:scale-98"
+                            >
+                              {copiedAddress ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-natureGreen-400" />
+                                  <span>Address Copied to Clipboard!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Copy {activeCrypto.symbol} Address</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="bg-honey-100/60 p-2.5 rounded-xl text-[11px] text-amberBrown-800 flex items-start gap-2">
+                          <AlertCircle className="w-4 h-4 text-honey-700 shrink-0 mt-0.5" />
+                          <span>
+                            Send exactly the order equivalent to this address on the <strong>{activeCrypto.network}</strong> network. After sending, upload the transaction receipt screenshot below.
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Screenshot / Proof Upload Section */}
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold text-amberBrown-950">
+                        Upload Transaction Screenshot / Receipt *
+                      </label>
+
+                      {!cryptoProofImage ? (
+                        <div className="border-2 border-dashed border-honey-300 hover:border-honey-500 bg-white rounded-2xl p-5 text-center transition-colors">
+                          <input
+                            type="file"
+                            id="crypto-proof-input"
+                            accept="image/png, image/jpeg, image/jpg, image/webp"
+                            onChange={handleProofUpload}
+                            className="hidden"
+                          />
+                          <label
+                            htmlFor="crypto-proof-input"
+                            className="cursor-pointer flex flex-col items-center justify-center space-y-2"
+                          >
+                            <div className="w-10 h-10 rounded-2xl bg-honey-100 text-honey-800 flex items-center justify-center">
+                              <UploadCloud className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-amberBrown-950">
+                                Click to upload transfer screenshot
+                              </p>
+                              <p className="text-[11px] text-amberBrown-500">
+                                PNG, JPG, or WEBP (Max 5MB)
+                              </p>
+                            </div>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="bg-white rounded-2xl p-3 border border-honey-300 flex items-center justify-between gap-3 shadow-2xs">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <img
+                              src={cryptoProofImage}
+                              alt="Payment proof preview"
+                              className="w-12 h-12 object-cover rounded-xl border border-honey-200 shrink-0 bg-honey-50"
+                            />
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-amberBrown-950 truncate">
+                                {cryptoProofFileName || 'Transaction Screenshot'}
+                              </p>
+                              <p className="text-[10px] text-natureGreen-700 font-bold flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                Screenshot attached ready for verification
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveProof}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
+                            title="Remove screenshot"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Optional TXID / Reference Input */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-amberBrown-900">
+                        Transaction Hash / TXID (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={cryptoTxId}
+                        onChange={(e) => setCryptoTxId(e.target.value)}
+                        placeholder="e.g. 0x8f2d... or Tron TXID"
+                        className="w-full px-3.5 py-2 bg-white rounded-xl border border-honey-300 text-xs text-amberBrown-900 font-mono focus:outline-none focus:ring-2 focus:ring-honey-500"
+                      />
+                    </div>
+
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

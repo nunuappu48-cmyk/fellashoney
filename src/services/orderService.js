@@ -30,13 +30,24 @@ export const orderService = {
     const orderNumber = `FEL-${Math.floor(100000 + Math.random() * 900000)}`
     const sanitizedUserId = isValidUUID(orderPayload.user_id) ? orderPayload.user_id : null
 
-    const newOrder = {
-      ...orderPayload,
+    const dbOrder = {
       user_id: sanitizedUserId,
       order_number: orderNumber,
+      subtotal: Number(orderPayload.subtotal || 0),
+      delivery_fee: Number(orderPayload.delivery_fee || 0),
+      discount: Number(orderPayload.discount || 0),
+      total: Number(orderPayload.total || 0),
       payment_method: orderPayload.payment_method || 'Cash on Delivery',
       payment_status: orderPayload.payment_status || 'Pending',
       status: 'Pending',
+      shipping_name: orderPayload.shipping_name,
+      shipping_phone: orderPayload.shipping_phone,
+      shipping_email: orderPayload.shipping_email,
+      shipping_address: orderPayload.shipping_address,
+      shipping_city: orderPayload.shipping_city,
+      shipping_country: orderPayload.shipping_country || 'India',
+      shipping_postal_code: orderPayload.shipping_postal_code,
+      delivery_notes: orderPayload.delivery_notes || '',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
@@ -45,7 +56,7 @@ export const orderService = {
       // 1. Insert order into Supabase
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
-        .insert([newOrder])
+        .insert([dbOrder])
         .select()
         .single()
 
@@ -79,6 +90,9 @@ export const orderService = {
       const completedOrder = {
         ...orderData,
         user_id: orderPayload.user_id || sanitizedUserId,
+        payment_proof: orderPayload.payment_proof || null,
+        transaction_id: orderPayload.transaction_id || null,
+        crypto_details: orderPayload.crypto_details || null,
         items
       }
       saveLocalOrder(completedOrder)
@@ -87,8 +101,11 @@ export const orderService = {
       console.warn('Using offline/local fallback order creation due to database policy:', err.message)
       const mockOrder = {
         id: 'ord-' + Date.now(),
-        ...newOrder,
+        ...dbOrder,
         user_id: orderPayload.user_id || sanitizedUserId,
+        payment_proof: orderPayload.payment_proof || null,
+        transaction_id: orderPayload.transaction_id || null,
+        crypto_details: orderPayload.crypto_details || null,
         items
       }
       saveLocalOrder(mockOrder)

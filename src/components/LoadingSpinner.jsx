@@ -1,19 +1,33 @@
 import React from 'react'
+import { AppLoadingScreen } from './AppLoadingScreen'
 
-export const LoadingSpinner = ({ size = 'md', text = 'Loading pure honey...' }) => {
+export const LoadingSpinner = ({ size = 'md', text = 'Loading pure honey...', fullScreen = false }) => {
+  if (fullScreen) {
+    return <AppLoadingScreen text={text} />
+  }
+
   const sizeClasses = {
-    sm: 'w-6 h-6 border-2',
-    md: 'w-10 h-10 border-3',
-    lg: 'w-16 h-16 border-4'
+    sm: 'w-8 h-8',
+    md: 'w-14 h-14',
+    lg: 'w-20 h-20'
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 gap-3">
-      <div className="relative">
-        <div className={`${sizeClasses[size]} border-honey-200 border-t-honey-500 rounded-full animate-spin`} />
-        <span className="absolute inset-0 flex items-center justify-center text-xs">🍯</span>
+    <div className="flex flex-col items-center justify-center p-6 gap-2.5">
+      <div className="relative flex items-center justify-center">
+        <div className={`${sizeClasses[size]} relative flex items-center justify-center`}>
+          <img
+            src="/200.gif"
+            alt="Flying Bee"
+            className="w-full h-full object-contain animate-float-slow filter drop-shadow-[0_4px_8px_rgba(183,121,31,0.25)]"
+          />
+        </div>
       </div>
-      {text && <p className="text-sm font-medium text-amberBrown-600 animate-pulse">{text}</p>}
+      {text && (
+        <p className="text-xs sm:text-sm font-bold text-amberBrown-800 animate-pulse tracking-wide font-sans">
+          {text}
+        </p>
+      )}
     </div>
   )
 }
