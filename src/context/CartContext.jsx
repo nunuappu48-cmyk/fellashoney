@@ -4,8 +4,8 @@ import { useToast } from './ToastContext'
 const CartContext = createContext(null)
 const LOCAL_CART_KEY = 'fellas_honey_cart_v1'
 
-const FREE_SHIPPING_THRESHOLD = 50.0
-const STANDARD_DELIVERY_FEE = 4.99
+const FREE_SHIPPING_THRESHOLD = 499.0
+const STANDARD_DELIVERY_FEE = 49.0
 
 export const CartProvider = ({ children }) => {
   const { addToast } = useToast()

@@ -23,7 +23,7 @@ export const Checkout = () => {
     shipping_phone: profile?.phone || '',
     shipping_address: '',
     shipping_city: '',
-    shipping_country: 'United States',
+    shipping_country: 'India',
     shipping_postal_code: '',
     delivery_notes: ''
   })
@@ -56,7 +56,7 @@ export const Checkout = () => {
     e.preventDefault()
 
     if (!formData.shipping_name || !formData.shipping_email || !formData.shipping_phone || !formData.shipping_address || !formData.shipping_city || !formData.shipping_postal_code) {
-      addToast('Please fill in all required shipping fields', 'error')
+      addToast('Please fill in all required delivery fields', 'error')
       return
     }
 
@@ -106,7 +106,7 @@ export const Checkout = () => {
             Secure Checkout
           </h1>
           <p className="text-xs text-amberBrown-500">
-            Fast, safe, and mobile-friendly order process
+            Fast, safe, and all-India doorstep delivery
           </p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export const Checkout = () => {
                 1
               </div>
               <h2 className="font-serif font-bold text-lg text-amberBrown-950">
-                Delivery Details
+                Delivery Details (India)
               </h2>
             </div>
 
@@ -161,7 +161,7 @@ export const Checkout = () => {
                     required
                     value={formData.shipping_email}
                     onChange={handleChange}
-                    placeholder="name@domain.com"
+                    placeholder="name@example.com"
                     className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                   />
                 </div>
@@ -170,7 +170,7 @@ export const Checkout = () => {
               {/* Phone */}
               <div className="space-y-1.5">
                 <label className="font-bold text-amberBrown-900 block">
-                  Phone Number *
+                  Mobile Number (for delivery SMS / call) *
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -180,7 +180,7 @@ export const Checkout = () => {
                     required
                     value={formData.shipping_phone}
                     onChange={handleChange}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+91 98765 43210"
                     className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                   />
                 </div>
@@ -189,7 +189,7 @@ export const Checkout = () => {
               {/* Street Address */}
               <div className="sm:col-span-2 space-y-1.5">
                 <label className="font-bold text-amberBrown-900 block">
-                  Street Address *
+                  Flat / House No. / Building / Street Address *
                 </label>
                 <div className="relative">
                   <MapPin className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -199,7 +199,7 @@ export const Checkout = () => {
                     required
                     value={formData.shipping_address}
                     onChange={handleChange}
-                    placeholder="House number, Street name, Apt / Suite"
+                    placeholder="e.g. Flat 402, Green Meadows, 12th Main Road"
                     className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                   />
                 </div>
@@ -208,7 +208,7 @@ export const Checkout = () => {
               {/* City */}
               <div className="space-y-1.5">
                 <label className="font-bold text-amberBrown-900 block">
-                  City *
+                  City / Town *
                 </label>
                 <input
                   type="text"
@@ -216,23 +216,24 @@ export const Checkout = () => {
                   required
                   value={formData.shipping_city}
                   onChange={handleChange}
-                  placeholder="San Francisco"
+                  placeholder="e.g. Bengaluru, Kochi, Mumbai, Delhi"
                   className="w-full px-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                 />
               </div>
 
-              {/* Postal Code */}
+              {/* PIN Code */}
               <div className="space-y-1.5">
                 <label className="font-bold text-amberBrown-900 block">
-                  Postal / ZIP Code *
+                  6-Digit PIN Code *
                 </label>
                 <input
                   type="text"
                   name="shipping_postal_code"
                   required
+                  maxLength={6}
                   value={formData.shipping_postal_code}
                   onChange={handleChange}
-                  placeholder="94107"
+                  placeholder="e.g. 560001"
                   className="w-full px-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                 />
               </div>
@@ -245,23 +246,23 @@ export const Checkout = () => {
                 <input
                   type="text"
                   name="shipping_country"
-                  value={formData.shipping_country}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                  readOnly
+                  value="India"
+                  className="w-full px-4 py-2.5 bg-cream-100 rounded-xl border border-honey-300 text-amberBrown-900 font-bold focus:outline-none cursor-not-allowed"
                 />
               </div>
 
               {/* Delivery Notes */}
               <div className="sm:col-span-2 space-y-1.5">
                 <label className="font-bold text-amberBrown-900 block">
-                  Delivery Instructions (Optional)
+                  Landmark / Delivery Instructions (Optional)
                 </label>
                 <textarea
                   rows={2}
                   name="delivery_notes"
                   value={formData.delivery_notes}
                   onChange={handleChange}
-                  placeholder="e.g. Please leave package at front door, ring bell..."
+                  placeholder="e.g. Near Metro Station, call upon arrival..."
                   className="w-full px-4 py-2 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                 />
               </div>
@@ -300,19 +301,19 @@ export const Checkout = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm text-amberBrown-950">
-                      Cash on Delivery (COD)
+                      Cash on Delivery (COD) / Pay on Delivery
                     </span>
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-natureGreen-100 text-natureGreen-800">
                       Recommended
                     </span>
                   </div>
                   <p className="text-xs text-amberBrown-600 mt-0.5">
-                    Pay securely with cash or card upon doorstep receipt of your fresh honey order.
+                    Pay securely with cash or UPI QR code to the delivery executive upon arrival.
                   </p>
                 </div>
               </label>
 
-              {/* Online Payment (Card / UPI Demo) */}
+              {/* Online UPI / Cards Payment */}
               <label
                 className={`flex items-start gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all ${
                   paymentMethod === 'Online Payment'
@@ -331,9 +332,9 @@ export const Checkout = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm text-amberBrown-950">
-                      Credit Card / Apple Pay / UPI
+                      UPI (GPay / PhonePe / Paytm) / Cards / Net Banking
                     </span>
-                    <span className="text-xs">💳</span>
+                    <span className="text-xs">📱</span>
                   </div>
                   <p className="text-xs text-amberBrown-600 mt-0.5">
                     Instant zero-touch payment gateway sandbox (Demo enabled).

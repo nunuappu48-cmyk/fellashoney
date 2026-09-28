@@ -248,28 +248,28 @@ export const ProductForm = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="block font-bold text-amberBrown-900">Price ($) *</label>
+              <label className="block font-bold text-amberBrown-900">Price (₹) *</label>
               <input
                 type="number"
-                step="0.01"
+                step="1"
                 name="price"
                 required
                 value={formData.price}
                 onChange={handleChange}
-                placeholder="24.99"
+                placeholder="499"
                 className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:ring-2 focus:ring-honey-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block font-bold text-amberBrown-900">Compare Price ($)</label>
+              <label className="block font-bold text-amberBrown-900">Compare Price (₹)</label>
               <input
                 type="number"
-                step="0.01"
+                step="1"
                 name="compare_price"
                 value={formData.compare_price || ''}
                 onChange={handleChange}
-                placeholder="29.99"
+                placeholder="599"
                 className="w-full px-3.5 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:ring-2 focus:ring-honey-500 focus:outline-none"
               />
             </div>

@@ -25,7 +25,7 @@ export const Features = () => {
       icon: '🚚',
       title: 'Fast Delivery',
       description: 'Reliable, temperature-protected delivery right to your doorstep with guaranteed freshness.',
-      highlight: 'Free Over $50'
+      highlight: 'Free Over ₹499'
     }
   ]
 

@@ -99,9 +99,9 @@ export const ProductDetails = () => {
   // Calculate dynamic price based on weight
   const basePrice = Number(product.price)
   const weightMultiplier = WEIGHT_MULTIPLIERS[selectedWeight] || 1.0
-  const currentPrice = Number((basePrice * weightMultiplier).toFixed(2))
+  const currentPrice = Math.round(basePrice * weightMultiplier)
   const currentComparePrice = product.compare_price
-    ? Number((Number(product.compare_price) * weightMultiplier).toFixed(2))
+    ? Math.round(Number(product.compare_price) * weightMultiplier)
     : null
 
   const handleAddToCart = () => {

@@ -31,7 +31,7 @@ export const Navbar = () => {
       <div className="bg-amberBrown-900 text-honey-200 text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
         <span className="hidden sm:inline">🐝 100% Pure, Raw & Unpasteurized</span>
         <span className="text-honey-400 font-bold">•</span>
-        <span>Free express delivery on orders over $50</span>
+        <span>Free express delivery across India on orders over ₹499</span>
         <span className="hidden md:inline text-honey-400 font-bold">•</span>
         <span className="hidden md:inline">Use code <span className="text-white font-bold bg-honey-600/60 px-1.5 py-0.5 rounded">HONEY10</span> for 10% off</span>
       </div>

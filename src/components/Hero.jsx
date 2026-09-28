@@ -124,7 +124,7 @@ export const Hero = () => {
               {/* Main Product Showcase Card */}
               <div className="relative z-10 w-full h-full rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border-4 border-white shadow-honey-lg bg-gradient-to-tr from-honey-100 to-amber-50 p-1.5 sm:p-2">
                 <img
-                  // src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=1000&q=85"
+                  src="https://unsplash.com/photos/honey-bees-on-wax-honeycomb-UQwbKtu-2Ek?auto=format&fit=crop&w=1000&q=85"
                   alt="Pure Natural Honey Jar with Dipper"
                   className="w-full h-full object-cover rounded-[1.75rem] sm:rounded-[2rem] transform hover:scale-105 transition-transform duration-700"
                 />

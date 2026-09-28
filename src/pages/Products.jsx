@@ -27,7 +27,7 @@ export const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory)
   const [searchTerm, setSearchTerm] = useState(initialSearch)
   const [sortBy, setSortBy] = useState('newest')
-  const [maxPrice, setMaxPrice] = useState(100)
+  const [maxPrice, setMaxPrice] = useState(3000)
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
   // Sync state with URL params
@@ -86,12 +86,12 @@ export const Products = () => {
     setSelectedCategory('All')
     setSearchTerm('')
     setSortBy('newest')
-    setMaxPrice(100)
+    setMaxPrice(3000)
     setSearchParams({})
     setIsMobileFilterOpen(false)
   }
 
-  const activeFiltersCount = (selectedCategory !== 'All' ? 1 : 0) + (searchTerm ? 1 : 0) + (maxPrice < 100 ? 1 : 0)
+  const activeFiltersCount = (selectedCategory !== 'All' ? 1 : 0) + (searchTerm ? 1 : 0) + (maxPrice < 3000 ? 1 : 0)
 
   return (
     <div className="py-4 sm:py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
@@ -263,17 +263,17 @@ export const Products = () => {
               </div>
               <input
                 type="range"
-                min="15"
-                max="100"
-                step="1"
+                min="100"
+                max="3000"
+                step="50"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="w-full accent-honey-600 cursor-pointer h-2 bg-cream-200 rounded-lg"
               />
               <div className="flex justify-between text-[11px] font-semibold text-amberBrown-400">
-                <span>$15.00</span>
-                <span>$50.00</span>
-                <span>$100.00</span>
+                <span>₹100</span>
+                <span>₹1,500</span>
+                <span>₹3,000</span>
               </div>
             </div>
 

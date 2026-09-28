@@ -1,9 +1,9 @@
 export const formatCurrency = (amount) => {
   const num = Number(amount) || 0
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
+    currency: 'INR',
+    maximumFractionDigits: 0
   }).format(num)
 }
 
@@ -11,7 +11,7 @@ export const formatDate = (dateString) => {
   if (!dateString) return ''
   try {
     const d = new Date(dateString)
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-IN', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
