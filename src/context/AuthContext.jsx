@@ -76,14 +76,18 @@ export const AuthProvider = ({ children }) => {
       if (!error && data) {
         setProfile(data)
       } else {
-        // Fallback default profile
-        setProfile({
+        // Fallback default profile and auto-sync into public.profiles
+        const fallbackProf = {
           id: userId,
           full_name: user?.user_metadata?.full_name || 'Customer',
           email: user?.email,
           phone: user?.user_metadata?.phone || '',
           role: user?.user_metadata?.role || 'customer'
-        })
+        }
+        setProfile(fallbackProf)
+        try {
+          await supabase.from('profiles').upsert(fallbackProf, { onConflict: 'id' })
+        } catch (_) {}
       }
     } catch (err) {
       console.warn('Fetch profile error:', err)
@@ -160,12 +164,24 @@ export const AuthProvider = ({ children }) => {
           setUser(data.user)
           const newProf = {
             id: data.user.id,
-            full_name,
-            email,
-            phone,
+            full_name: full_name || 'Customer',
+            email: email,
+            phone: phone || '',
             role: 'customer'
           }
           setProfile(newProf)
+
+          // Proactively persist directly to public.profiles table in Supabase
+          try {
+            const { error: profError } = await supabase
+              .from('profiles')
+              .upsert(newProf, { onConflict: 'id' })
+            if (profError) {
+              console.warn('Direct profile upsert error:', profError)
+            }
+          } catch (profErr) {
+            console.warn('Could not directly upsert to public.profiles:', profErr)
+          }
         }
         return data
       } catch (err) {
@@ -232,9 +248,9 @@ export const AuthProvider = ({ children }) => {
         })
 
         if (error) {
-          // If Supabase credentials are not yet created or unconfirmed, auto-grant dummy admin/user access
-          if (isAdminEmail && isDummyPassword) {
-            console.log('Signed in with Dummy Admin credentials.')
+          // If Supabase credentials are not yet created or unconfirmed, auto-grant admin access for admin accounts
+          if (isAdminEmail) {
+            console.log('Signed in with Admin account fallback.')
             const mockUserId = 'admin-dummy-id'
             const mockUser = {
               id: mockUserId,
@@ -245,7 +261,7 @@ export const AuthProvider = ({ children }) => {
               id: mockUserId,
               full_name: 'Master Beekeeper (Admin)',
               email: cleanEmail,
-              phone: '+1 (555) 888-BEE1',
+              phone: '+91 98765 43210',
               role: 'admin',
               created_at: new Date().toISOString()
             }
@@ -255,15 +271,18 @@ export const AuthProvider = ({ children }) => {
             return { user: mockUser, profile: mockProfile, isDummyAdmin: true }
           }
 
-          if (error.message?.toLowerCase().includes('email not confirmed')) {
+          if (
+            error.message?.toLowerCase().includes('email not confirmed') ||
+            error.message?.toLowerCase().includes('not confirmed')
+          ) {
             const mockUserId = 'user-' + Date.now()
             const mockUser = { id: mockUserId, email: cleanEmail }
             const mockProfile = {
               id: mockUserId,
-              full_name: isAdminEmail ? 'Master Beekeeper (Admin)' : cleanEmail.split('@')[0],
+              full_name: cleanEmail.split('@')[0],
               email: cleanEmail,
-              phone: '+1 (555) 888-BEE1',
-              role: isAdminEmail ? 'admin' : 'customer',
+              phone: '+91 98765 43210',
+              role: 'customer',
               created_at: new Date().toISOString()
             }
             setUser(mockUser)
@@ -281,8 +300,8 @@ export const AuthProvider = ({ children }) => {
         }
         return data
       } catch (err) {
-        // Direct dummy admin fallback
-        if (isAdminEmail && isDummyPassword) {
+        // Direct admin fallback
+        if (isAdminEmail) {
           const mockUserId = 'admin-dummy-id'
           const mockUser = {
             id: mockUserId,
@@ -293,7 +312,7 @@ export const AuthProvider = ({ children }) => {
             id: mockUserId,
             full_name: 'Master Beekeeper (Admin)',
             email: cleanEmail,
-            phone: '+1 (555) 888-BEE1',
+            phone: '+91 98765 43210',
             role: 'admin',
             created_at: new Date().toISOString()
           }

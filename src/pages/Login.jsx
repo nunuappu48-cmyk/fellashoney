@@ -37,7 +37,12 @@ export const Login = () => {
         navigate(redirectPath)
       }
     } catch (err) {
-      addToast(err.message || 'Failed to sign in. Please check your credentials.', 'error')
+      const msg = err?.message || 'Failed to sign in. Please check your credentials.'
+      if (msg.toLowerCase().includes('invalid login credentials')) {
+        addToast('Invalid email or password. If you just registered, disable "Confirm email" in Supabase or verify your credentials.', 'error')
+      } else {
+        addToast(msg, 'error')
+      }
     } finally {
       setLoading(false)
     }

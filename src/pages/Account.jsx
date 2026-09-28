@@ -46,7 +46,7 @@ export const Account = () => {
 
     const fetchUserOrders = async () => {
       try {
-        const data = await orderService.getUserOrders(user.id)
+        const data = await orderService.getUserOrders(user.id, user.email || profile?.email)
         setOrders(data)
       } catch (err) {
         console.error('Error fetching user orders:', err)

@@ -76,7 +76,11 @@ export const orderService = {
         }
       }
 
-      const completedOrder = { ...orderData, items }
+      const completedOrder = {
+        ...orderData,
+        user_id: orderPayload.user_id || sanitizedUserId,
+        items
+      }
       saveLocalOrder(completedOrder)
       return completedOrder
     } catch (err) {
@@ -84,6 +88,7 @@ export const orderService = {
       const mockOrder = {
         id: 'ord-' + Date.now(),
         ...newOrder,
+        user_id: orderPayload.user_id || sanitizedUserId,
         items
       }
       saveLocalOrder(mockOrder)
@@ -117,18 +122,29 @@ export const orderService = {
     return found || null
   },
 
-  async getUserOrders(userId) {
-    if (!userId) return []
+  async getUserOrders(userId, userEmail = '') {
+    if (!userId && !userEmail) return []
     let dbOrders = []
+    const cleanEmail = (userEmail || '').trim().toLowerCase()
+
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('orders')
         .select(`
           *,
           items:order_items(*)
         `)
-        .eq('user_id', userId)
         .order('created_at', { ascending: false })
+
+      if (isValidUUID(userId) && cleanEmail) {
+        query = query.or(`user_id.eq.${userId},shipping_email.ilike.${cleanEmail}`)
+      } else if (isValidUUID(userId)) {
+        query = query.eq('user_id', userId)
+      } else if (cleanEmail) {
+        query = query.ilike('shipping_email', cleanEmail)
+      }
+
+      const { data, error } = await query
 
       if (!error && data) {
         dbOrders = data
@@ -137,7 +153,13 @@ export const orderService = {
       console.warn('Supabase getUserOrders error:', err.message)
     }
 
-    const localOrders = getLocalOrders().filter(o => o.user_id === userId || !o.user_id)
+    // Strictly filter local orders ONLY for this exact user (by userId or matching email)
+    const localOrders = getLocalOrders().filter(o => {
+      const matchesUserId = userId && o.user_id && String(o.user_id) === String(userId)
+      const matchesEmail = cleanEmail && o.shipping_email && o.shipping_email.trim().toLowerCase() === cleanEmail
+      return Boolean(matchesUserId || matchesEmail)
+    })
+
     // Combine and deduplicate
     const all = [...dbOrders]
     for (const loc of localOrders) {

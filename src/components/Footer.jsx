@@ -97,11 +97,11 @@ export const Footer = () => {
             <ul className="space-y-2.5 text-xs text-cream-200/80">
               <li className="flex items-center gap-2.5">
                 <MapPin className="w-4 h-4 text-honey-500 flex-shrink-0" />
-                <span>Apiary Reserve, Organic Valley, CA 95401</span>
+                <span>Western Ghats & Coorg Apiaries, India</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-honey-500 flex-shrink-0" />
-                <span>+1 (800) 555-HONEY (4663)</span>
+                <span>+91 98765 43210</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-honey-500 flex-shrink-0" />
@@ -111,7 +111,13 @@ export const Footer = () => {
 
             {/* Social Icons */}
             <div className="flex gap-2.5 pt-2">
-              <a href="#" className="w-8 h-8 rounded-xl bg-amberBrown-800 flex items-center justify-center text-honey-400 hover:bg-honey-500 hover:text-amberBrown-950 transition-colors" aria-label="Instagram">
+              <a
+                href="https://www.instagram.com/fellas_honey?stkn=MTNvZm82bmFoaHcyZw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-xl bg-amberBrown-800 flex items-center justify-center text-honey-400 hover:bg-honey-500 hover:text-amberBrown-950 transition-colors"
+                aria-label="Instagram"
+              >
                 <Instagram className="w-4 h-4" />
               </a>
               <a href="#" className="w-8 h-8 rounded-xl bg-amberBrown-800 flex items-center justify-center text-honey-400 hover:bg-honey-500 hover:text-amberBrown-950 transition-colors" aria-label="Facebook">
