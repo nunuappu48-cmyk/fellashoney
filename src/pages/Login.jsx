@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { HoneycombPattern } from '../components/HoneyDecoration'
@@ -8,6 +8,7 @@ import { HoneycombPattern } from '../components/HoneyDecoration'
 export const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const { signIn } = useAuth()
@@ -24,7 +25,8 @@ export const Login = () => {
       const isAdminUser =
         res?.isDummyAdmin ||
         res?.profile?.role === 'admin' ||
-        email.toLowerCase().includes('admin')
+        res?.user?.user_metadata?.role === 'admin' ||
+        email.trim().toLowerCase() === 'admin@fellashoney.com'
 
       if (isAdminUser) {
         addToast('Signed in as Master Beekeeper (Admin)! 🍯', 'success')
@@ -39,7 +41,7 @@ export const Login = () => {
     } catch (err) {
       const msg = err?.message || 'Failed to sign in. Please check your credentials.'
       if (msg.toLowerCase().includes('invalid login credentials')) {
-        addToast('Invalid email or password. If you just registered, disable "Confirm email" in Supabase or verify your credentials.', 'error')
+        addToast('Invalid email or password. Please verify your credentials and try again.', 'error')
       } else {
         addToast(msg, 'error')
       }
@@ -99,15 +101,28 @@ export const Login = () => {
               </Link>
             </div>
             <div className="relative">
-              <Lock className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-amberBrown-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-xs sm:text-sm text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
+                className="w-full pl-10 pr-11 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-xs sm:text-sm text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-amberBrown-400 hover:text-amberBrown-700 p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-honey-400 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4 text-amberBrown-700" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 

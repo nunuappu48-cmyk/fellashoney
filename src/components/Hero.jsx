@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, ShieldCheck, HeartHandshake, Award } from 'lucide-react'
-import { HoneycombPattern, BeeIcon, HoneyDropIcon } from './HoneyDecoration'
+import { HoneycombPattern, HoneyDropIcon } from './HoneyDecoration'
 
 export const Hero = () => {
   return (
@@ -19,15 +19,6 @@ export const Hero = () => {
 
           {/* Left Hero Content */}
           <div className="lg:col-span-7 text-center lg:text-left space-y-4 sm:space-y-6">
-
-            {/* Organic Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/90 border border-honey-300 shadow-2xs backdrop-blur-sm">
-              <span className="flex h-2 w-2 rounded-full bg-natureGreen-500 animate-ping" />
-              <BeeIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amberBrown-800">
-                100% Pure • Raw • Artisanal Apiary
-              </span>
-            </div>
 
             {/* Main Headline */}
             <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl text-amberBrown-950 tracking-tight leading-[1.15]">

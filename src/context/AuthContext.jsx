@@ -64,8 +64,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (userId, currentUser = null) => {
     if (!isSupabaseConfigured()) return
+    const activeUser = currentUser || user
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -79,15 +80,15 @@ export const AuthProvider = ({ children }) => {
         // Fallback default profile and auto-sync into public.profiles
         const fallbackProf = {
           id: userId,
-          full_name: user?.user_metadata?.full_name || 'Customer',
-          email: user?.email,
-          phone: user?.user_metadata?.phone || '',
-          role: user?.user_metadata?.role || 'customer'
+          full_name: activeUser?.user_metadata?.full_name || 'Customer',
+          email: activeUser?.email,
+          phone: activeUser?.user_metadata?.phone || '',
+          role: activeUser?.user_metadata?.role || (activeUser?.email === 'admin@fellashoney.com' ? 'admin' : 'customer')
         }
         setProfile(fallbackProf)
         try {
           await supabase.from('profiles').upsert(fallbackProf, { onConflict: 'id' })
-        } catch (_) {}
+        } catch (_) { }
       }
     } catch (err) {
       console.warn('Fetch profile error:', err)
@@ -237,103 +238,61 @@ export const AuthProvider = ({ children }) => {
   // Sign in
   const signIn = async ({ email, password }) => {
     const cleanEmail = (email || '').trim().toLowerCase()
-    const isAdminEmail = cleanEmail.includes('admin') || cleanEmail === 'admin@fellashoney.com'
-    const isDummyPassword = password === 'admin123' || password === 'admin' || password === 'password123'
 
     if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password
-        })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password
+      })
 
-        if (error) {
-          // If Supabase credentials are not yet created or unconfirmed, auto-grant admin access for admin accounts
-          if (isAdminEmail) {
-            console.log('Signed in with Admin account fallback.')
-            const mockUserId = 'admin-dummy-id'
-            const mockUser = {
-              id: mockUserId,
-              email: cleanEmail,
-              user_metadata: { full_name: 'Master Beekeeper (Admin)', role: 'admin' }
-            }
-            const mockProfile = {
-              id: mockUserId,
-              full_name: 'Master Beekeeper (Admin)',
-              email: cleanEmail,
-              phone: '+91 85898 66422',
-              role: 'admin',
-              created_at: new Date().toISOString()
-            }
-            setUser(mockUser)
-            setProfile(mockProfile)
-            localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-            return { user: mockUser, profile: mockProfile, isDummyAdmin: true }
-          }
-
-          if (
-            error.message?.toLowerCase().includes('email not confirmed') ||
-            error.message?.toLowerCase().includes('not confirmed')
-          ) {
-            const mockUserId = 'user-' + Date.now()
-            const mockUser = { id: mockUserId, email: cleanEmail }
-            const mockProfile = {
-              id: mockUserId,
-              full_name: cleanEmail.split('@')[0],
-              email: cleanEmail,
-              phone: '+91 85898 66422',
-              role: 'customer',
-              created_at: new Date().toISOString()
-            }
-            setUser(mockUser)
-            setProfile(mockProfile)
-            localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-            return { user: mockUser, profile: mockProfile, unconfirmedFallback: true }
-          }
-
-          throw error
-        }
-
-        if (data?.user) {
-          setUser(data.user)
-          await fetchProfile(data.user.id)
-        }
-        return data
-      } catch (err) {
-        // Direct admin fallback
-        if (isAdminEmail) {
-          const mockUserId = 'admin-dummy-id'
-          const mockUser = {
-            id: mockUserId,
-            email: cleanEmail,
-            user_metadata: { full_name: 'Master Beekeeper (Admin)', role: 'admin' }
-          }
+      if (error) {
+        // If the password was valid, but Supabase requires email confirmation:
+        if (
+          error.message?.toLowerCase().includes('email not confirmed') ||
+          error.message?.toLowerCase().includes('not confirmed')
+        ) {
+          const mockUserId = 'user-' + Date.now()
+          const mockUser = { id: mockUserId, email: cleanEmail }
           const mockProfile = {
             id: mockUserId,
-            full_name: 'Master Beekeeper (Admin)',
+            full_name: cleanEmail.split('@')[0],
             email: cleanEmail,
             phone: '+91 85898 66422',
-            role: 'admin',
+            role: cleanEmail === 'admin@fellashoney.com' ? 'admin' : 'customer',
             created_at: new Date().toISOString()
           }
           setUser(mockUser)
           setProfile(mockProfile)
           localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-          return { user: mockUser, profile: mockProfile, isDummyAdmin: true }
+          return { user: mockUser, profile: mockProfile, unconfirmedFallback: true }
         }
-        if (err.unconfirmedFallback) return err
-        throw err
+
+        // STRICT SECURITY: Wrong password or invalid credentials must throw an error
+        throw error
+      }
+
+      if (data?.user) {
+        setUser(data.user)
+        await fetchProfile(data.user.id, data.user)
+      }
+      return data
+    }
+
+    // Local Mock sign in (only when Supabase is completely unconfigured)
+    const isAdminEmail = cleanEmail === 'admin@fellashoney.com'
+    if (isAdminEmail) {
+      if (password !== 'admin1235789') {
+        throw new Error('Invalid email or password.')
       }
     }
 
-    // Local Mock sign in
     const mockUserId = isAdminEmail ? 'admin-user-id' : 'demo-user-id'
     const mockUser = { id: mockUserId, email: cleanEmail }
     const mockProfile = {
       id: mockUserId,
       full_name: isAdminEmail ? 'Master Beekeeper (Admin)' : 'Honey Enthusiast',
       email: cleanEmail,
-      phone: '+1 (555) 888-BEE1',
+      phone: '+91 85898 66422',
       role: isAdminEmail ? 'admin' : 'customer',
       created_at: new Date().toISOString()
     }
