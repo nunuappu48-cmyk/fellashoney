@@ -17,7 +17,7 @@ export const LoadingSpinner = ({ size = 'md', text = 'Loading pure honey...', fu
       <div className="relative flex items-center justify-center">
         <div className={`${sizeClasses[size]} relative flex items-center justify-center`}>
           <img
-            src="/200.gif"
+            src="/3004.gif"
             alt="Flying Bee"
             className="w-full h-full object-contain animate-float-slow filter drop-shadow-[0_4px_8px_rgba(183,121,31,0.25)]"
           />

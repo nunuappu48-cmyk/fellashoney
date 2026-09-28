@@ -7,9 +7,8 @@ export const AppLoadingScreen = ({
 }) => {
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden transition-opacity duration-700 select-none ${
-        fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
-      }`}
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden transition-opacity duration-700 select-none ${fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
       style={{
         background: 'radial-gradient(ellipse at 50% 45%, #FFFDF5 0%, #FFF7D6 30%, #FEE898 60%, #F59E0B 88%, #451A03 100%)'
       }}
@@ -58,15 +57,15 @@ export const AppLoadingScreen = ({
 
       {/* Centered Brand Stack */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-sm mx-auto">
-        
+
         {/* Flying Bee + Centered Logo Container */}
         <div className="relative w-40 h-40 flex items-center justify-center mb-2">
-          
-          {/* Animated Flying Bee (200.gif) with Flight Path */}
+
+          {/* Animated Flying Bee (3004.gif) with Flight Path */}
           <div className="absolute z-20 pointer-events-none bee-flight-container">
             <div className="relative">
               <img
-                src="/200.gif"
+                src="/3004.gif"
                 alt="Flying Bee"
                 className="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-[0_8px_12px_rgba(69,26,3,0.35)]"
               />
@@ -94,7 +93,7 @@ export const AppLoadingScreen = ({
           <h1 className="font-serif font-black text-2xl sm:text-4xl text-amberBrown-950 tracking-wider drop-shadow-sm">
             FELLAS HONEY
           </h1>
-          
+
           {/* Gold Decorative Divider with Honey Drop */}
           <div className="flex items-center justify-center gap-2.5 py-1">
             <span className="h-[1.5px] w-8 bg-gradient-to-r from-transparent via-amber-700 to-amber-900 rounded-full" />
