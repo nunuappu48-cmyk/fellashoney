@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-cream-100 text-amberBrown-900 selection:bg-honey-200 selection:text-amberBrown-900;
+  }
+
+  /* Custom honey-toned scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FFFDF5;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #FFD54F;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #F4B400;
+  }
+}
+
+@layer utilities {
+  /* Subtle honeycomb background pattern */
+  .bg-honeycomb {
+    background-color: #FFFDF5;
+    background-image: radial-gradient(#F4B400 0.75px, transparent 0.75px), radial-gradient(#F4B400 0.75px, #FFFDF5 0.75px);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    background-opacity: 0.05;
+  }
+
+  .bg-honey-gradient {
+    background: linear-gradient(135deg, #FFF9E6 0%, #FFF4CC 50%, #FFE580 100%);
+  }
+
+  .bg-amber-gold-gradient {
+    background: linear-gradient(135deg, #F4B400 0%, #D99B00 50%, #B7791F 100%);
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #B7791F 0%, #F4B400 50%, #8C5A14 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glass-card {
+    background: rgba(255, 253, 245, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(244, 180, 0, 0.2);
+  }
+
+  .glass-card-dark {
+    background: rgba(62, 39, 35, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(244, 180, 0, 0.3);
+  }
+}
+
+/* Micro-animations */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.03); }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s infinite ease-in-out;
+}
