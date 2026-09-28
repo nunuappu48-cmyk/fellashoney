@@ -67,8 +67,8 @@ export const Register = () => {
         <HoneycombPattern className="text-honey-400 opacity-5" />
 
         <div className="text-center space-y-2 relative z-10">
-          <div className="w-14 h-14 bg-amber-gold-gradient rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-honey-sm">
-            🐝
+          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-1.5 mx-auto shadow-honey-sm border border-honey-200 overflow-hidden">
+            <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
           </div>
           <h1 className="font-serif font-black text-2xl sm:text-3xl text-amberBrown-950">
             Create an Account

@@ -36,8 +36,8 @@ export const AdminLayout = () => {
           {/* Admin Brand Header */}
           <div className="p-5 border-b border-amberBrown-800 flex items-center justify-between">
             <Link to="/admin" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-gold-gradient flex items-center justify-center text-xl shadow-xs">
-                🍯
+              <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center border border-honey-400 shadow-xs overflow-hidden">
+                <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="font-serif font-black text-lg text-honey-400 leading-none block">

@@ -54,8 +54,8 @@ export const Navbar = () => {
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-gold-gradient p-2 shadow-honey-sm flex items-center justify-center transform group-hover:rotate-6 transition-transform">
-                <span className="text-2xl sm:text-3xl filter drop-shadow">🍯</span>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white p-1.5 border border-honey-200 shadow-honey-sm flex items-center justify-center transform group-hover:scale-105 transition-transform overflow-hidden">
+                <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-serif font-black text-xl sm:text-2xl tracking-tight text-amberBrown-900 leading-none group-hover:text-honey-700 transition-colors">

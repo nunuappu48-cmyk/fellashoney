@@ -13,8 +13,8 @@ export const Footer = () => {
           {/* Brand Info */}
           <div className="lg:col-span-4 space-y-4">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-amber-gold-gradient p-2 flex items-center justify-center">
-                <span className="text-2xl">🍯</span>
+              <div className="w-11 h-11 rounded-2xl bg-white p-1.5 flex items-center justify-center border border-honey-400 overflow-hidden shadow-xs">
+                <img src="/logo.png" alt="Fellas Honey" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-serif font-black text-2xl text-honey-400 tracking-tight leading-none">
