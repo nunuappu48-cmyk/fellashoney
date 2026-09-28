@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, LogIn, Sparkles, ShieldCheck, ArrowRight } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { HoneycombPattern } from '../components/HoneyDecoration'
@@ -10,7 +10,7 @@ export const Login = () => {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signIn, loginAsDemo } = useAuth()
+  const { signIn } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
@@ -43,24 +43,6 @@ export const Login = () => {
     }
   }
 
-  const fillCredentials = (type) => {
-    if (type === 'admin') {
-      setEmail('admin@fellashoney.com')
-      setPassword('admin123')
-      addToast('Filled Admin credentials! Click "Sign In to Account" or submit.', 'info')
-    } else {
-      setEmail('customer@fellashoney.com')
-      setPassword('customer123')
-      addToast('Filled Customer credentials! Click "Sign In to Account" or submit.', 'info')
-    }
-  }
-
-  const handleQuickDemo = (role) => {
-    loginAsDemo(role)
-    addToast(`Signed in as ${role === 'admin' ? 'Admin' : 'Customer'} demo! 🍯`, 'success')
-    navigate(role === 'admin' ? '/admin' : redirectPath)
-  }
-
   return (
     <div className="py-8 sm:py-16 max-w-md mx-auto px-4 relative">
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-honey-300 shadow-soft-lg space-y-6 relative overflow-hidden">
@@ -80,27 +62,6 @@ export const Login = () => {
           </p>
         </div>
 
-        {/* Predefined Dummy Admin Badge */}
-        <div className="p-3 bg-honey-50/80 border border-honey-200 rounded-2xl space-y-2 relative z-10">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold text-amberBrown-900 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-amber-700" />
-              <span>Dummy Admin Credentials</span>
-            </span>
-            <button
-              type="button"
-              onClick={() => fillCredentials('admin')}
-              className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-honey-400 text-amberBrown-950 hover:bg-honey-500 rounded-md transition-colors"
-            >
-              Auto-Fill
-            </button>
-          </div>
-          <div className="text-[11px] text-amberBrown-700 font-mono bg-white/70 p-2 rounded-xl border border-honey-100 flex justify-between items-center">
-            <span><strong>Email:</strong> admin@fellashoney.com</span>
-            <span><strong>Pass:</strong> admin123</span>
-          </div>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
           <div className="space-y-1.5">
@@ -114,7 +75,7 @@ export const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@fellashoney.com"
+                placeholder="name@example.com"
                 className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-xs sm:text-sm text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
               />
             </div>
@@ -153,30 +114,6 @@ export const Login = () => {
             {loading ? 'Signing In...' : 'Sign In to Account'}
           </button>
         </form>
-
-        {/* Demo Fast Access (Customer & Admin) */}
-        <div className="pt-4 border-t border-honey-100 space-y-2 relative z-10">
-          <p className="text-[11px] font-bold text-center text-amberBrown-500 uppercase tracking-wider">
-            Quick One-Click Demo Access
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('customer')}
-              className="py-2.5 px-3 bg-honey-50 hover:bg-honey-100 border border-honey-200 text-amberBrown-900 rounded-xl text-xs font-bold transition-colors text-center"
-            >
-              🍯 Demo Customer
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin')}
-              className="py-2.5 px-3 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300 text-amber-900 rounded-xl text-xs font-bold transition-colors text-center flex items-center justify-center gap-1"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-              <span>Demo Admin</span>
-            </button>
-          </div>
-        </div>
 
         {/* Footer Link */}
         <div className="text-center text-xs text-amberBrown-600 relative z-10">
