@@ -83,7 +83,7 @@ export const Home = () => {
         <HoneycombPattern className="text-honey-400 opacity-5" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
+
             {/* Visual Image Grid */}
             <div className="lg:col-span-6 relative">
               <div className="relative rounded-3xl overflow-hidden shadow-honey-lg border-4 border-white">

@@ -6,7 +6,7 @@ import { HoneycombPattern, BeeIcon, HoneyDropIcon } from './HoneyDecoration'
 export const Hero = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-honey-100/90 via-cream-50 to-cream-100 pt-4 pb-10 sm:pt-12 sm:pb-20 border-b border-honey-200/50">
-      
+
       {/* Background Subtle Honeycomb Pattern */}
       <HoneycombPattern className="text-honey-400 opacity-10" />
 
@@ -16,10 +16,10 @@ export const Hero = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-center">
-          
+
           {/* Left Hero Content */}
           <div className="lg:col-span-7 text-center lg:text-left space-y-4 sm:space-y-6">
-            
+
             {/* Organic Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/90 border border-honey-300 shadow-2xs backdrop-blur-sm">
               <span className="flex h-2 w-2 rounded-full bg-natureGreen-500 animate-ping" />
@@ -114,17 +114,17 @@ export const Hero = () => {
 
           {/* Right Hero Visuals */}
           <div className="lg:col-span-5 relative mt-2 sm:mt-4 lg:mt-0 flex items-center justify-center">
-            
+
             {/* Background Hexagon Graphic */}
             <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg aspect-square flex items-center justify-center">
-              
+
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-honey-400/40 animate-spin-slow duration-30000" />
               <div className="absolute inset-4 rounded-full bg-amber-gold-gradient opacity-15 blur-xl" />
 
               {/* Main Product Showcase Card */}
               <div className="relative z-10 w-full h-full rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border-4 border-white shadow-honey-lg bg-gradient-to-tr from-honey-100 to-amber-50 p-1.5 sm:p-2">
                 <img
-                  src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=1000&q=85"
+                  // src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=1000&q=85"
                   alt="Pure Natural Honey Jar with Dipper"
                   className="w-full h-full object-cover rounded-[1.75rem] sm:rounded-[2rem] transform hover:scale-105 transition-transform duration-700"
                 />
