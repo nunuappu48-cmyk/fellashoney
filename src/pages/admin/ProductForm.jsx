@@ -126,7 +126,14 @@ export const ProductForm = () => {
       navigate('/admin/products')
     } catch (err) {
       console.error('Save product error:', err)
-      addToast('Failed to save product. Please check form data.', 'error')
+      const errorMsg = err?.message || ''
+      if (errorMsg.includes('row-level security') || errorMsg.includes('42501')) {
+        addToast('Database RLS Policy Error: Please run the RLS fix script in Supabase SQL editor to allow product updates.', 'error')
+      } else if (errorMsg.includes('duplicate key') || errorMsg.includes('slug')) {
+        addToast('A product with this URL slug already exists. Please choose a different name or slug.', 'error')
+      } else {
+        addToast(errorMsg || 'Failed to save product. Please check form data.', 'error')
+      }
     } finally {
       setSubmitting(false)
     }
