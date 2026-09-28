@@ -95,17 +95,21 @@ export const Footer = () => {
               Get in Touch
             </h4>
             <ul className="space-y-2.5 text-xs text-cream-200/80">
-              <li className="flex items-center gap-2.5">
-                <MapPin className="w-4 h-4 text-honey-500 flex-shrink-0" />
-                <span>Western Ghats & Coorg Apiaries, India</span>
+              <li className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-honey-500 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">Fella Honey, Munderi P.O., Malappuram, Kerala 679334</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-honey-500 flex-shrink-0" />
-                <span>+91 98765 43210</span>
+                <a href="tel:+918589866422" className="hover:text-honey-400 transition-colors">
+                  +91 85898 66422
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-honey-500 flex-shrink-0" />
-                <span>hello@fellashoney.com</span>
+                <a href="mailto:hello@fellashoney.com" className="hover:text-honey-400 transition-colors">
+                  hello@fellashoney.com
+                </a>
               </li>
             </ul>
 

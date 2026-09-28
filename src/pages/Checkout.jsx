@@ -283,7 +283,7 @@ export const Checkout = () => {
                     required
                     value={formData.shipping_phone}
                     onChange={handleChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 85898 66422"
                     className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                   />
                 </div>

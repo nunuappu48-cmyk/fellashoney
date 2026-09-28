@@ -261,7 +261,7 @@ export const AuthProvider = ({ children }) => {
               id: mockUserId,
               full_name: 'Master Beekeeper (Admin)',
               email: cleanEmail,
-              phone: '+91 98765 43210',
+              phone: '+91 85898 66422',
               role: 'admin',
               created_at: new Date().toISOString()
             }
@@ -281,7 +281,7 @@ export const AuthProvider = ({ children }) => {
               id: mockUserId,
               full_name: cleanEmail.split('@')[0],
               email: cleanEmail,
-              phone: '+91 98765 43210',
+              phone: '+91 85898 66422',
               role: 'customer',
               created_at: new Date().toISOString()
             }
@@ -312,7 +312,7 @@ export const AuthProvider = ({ children }) => {
             id: mockUserId,
             full_name: 'Master Beekeeper (Admin)',
             email: cleanEmail,
-            phone: '+91 98765 43210',
+            phone: '+91 85898 66422',
             role: 'admin',
             created_at: new Date().toISOString()
           }

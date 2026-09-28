@@ -164,7 +164,7 @@ export const Account = () => {
                   type="tel"
                   value={phoneInput}
                   onChange={(e) => setPhoneInput(e.target.value)}
-                  placeholder="+91 98765 43210"
+                  placeholder="+91 85898 66422"
                   className="w-full px-3 py-2 bg-cream-50 border border-honey-300 rounded-xl text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
                 />
               </div>
