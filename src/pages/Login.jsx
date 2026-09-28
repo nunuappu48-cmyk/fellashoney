@@ -21,16 +21,37 @@ export const Login = () => {
     setLoading(true)
     try {
       const res = await signIn({ email, password })
-      if (res?.unconfirmedFallback) {
+      const isAdminUser =
+        res?.isDummyAdmin ||
+        res?.profile?.role === 'admin' ||
+        email.toLowerCase().includes('admin')
+
+      if (isAdminUser) {
+        addToast('Signed in as Master Beekeeper (Admin)! 🍯', 'success')
+        navigate('/admin')
+      } else if (res?.unconfirmedFallback) {
         addToast('Signed in successfully! 🍯', 'success')
+        navigate(redirectPath)
       } else {
         addToast('Welcome back to Fellas Honey! 🍯', 'success')
+        navigate(redirectPath)
       }
-      navigate(redirectPath)
     } catch (err) {
       addToast(err.message || 'Failed to sign in. Please check your credentials.', 'error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fillCredentials = (type) => {
+    if (type === 'admin') {
+      setEmail('admin@fellashoney.com')
+      setPassword('admin123')
+      addToast('Filled Admin credentials! Click "Sign In to Account" or submit.', 'info')
+    } else {
+      setEmail('customer@fellashoney.com')
+      setPassword('customer123')
+      addToast('Filled Customer credentials! Click "Sign In to Account" or submit.', 'info')
     }
   }
 
@@ -59,6 +80,27 @@ export const Login = () => {
           </p>
         </div>
 
+        {/* Predefined Dummy Admin Badge */}
+        <div className="p-3 bg-honey-50/80 border border-honey-200 rounded-2xl space-y-2 relative z-10">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-extrabold text-amberBrown-900 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-amber-700" />
+              <span>Dummy Admin Credentials</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => fillCredentials('admin')}
+              className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-honey-400 text-amberBrown-950 hover:bg-honey-500 rounded-md transition-colors"
+            >
+              Auto-Fill
+            </button>
+          </div>
+          <div className="text-[11px] text-amberBrown-700 font-mono bg-white/70 p-2 rounded-xl border border-honey-100 flex justify-between items-center">
+            <span><strong>Email:</strong> admin@fellashoney.com</span>
+            <span><strong>Pass:</strong> admin123</span>
+          </div>
+        </div>
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
           <div className="space-y-1.5">
@@ -72,7 +114,7 @@ export const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
+                placeholder="admin@fellashoney.com"
                 className="w-full pl-10 pr-4 py-2.5 bg-cream-50 rounded-xl border border-honey-300 text-xs sm:text-sm text-amberBrown-900 focus:outline-none focus:ring-2 focus:ring-honey-500"
               />
             </div>

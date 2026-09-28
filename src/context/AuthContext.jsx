@@ -220,59 +220,108 @@ export const AuthProvider = ({ children }) => {
 
   // Sign in
   const signIn = async ({ email, password }) => {
+    const cleanEmail = (email || '').trim().toLowerCase()
+    const isAdminEmail = cleanEmail.includes('admin') || cleanEmail === 'admin@fellashoney.com'
+    const isDummyPassword = password === 'admin123' || password === 'admin' || password === 'password123'
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
+          email: cleanEmail,
           password
         })
+
         if (error) {
-          if (error.message?.toLowerCase().includes('email not confirmed')) {
-            const isAdmin = email.toLowerCase().includes('admin')
-            const mockUserId = 'user-' + Date.now()
-            const mockUser = { id: mockUserId, email }
+          // If Supabase credentials are not yet created or unconfirmed, auto-grant dummy admin/user access
+          if (isAdminEmail && isDummyPassword) {
+            console.log('Signed in with Dummy Admin credentials.')
+            const mockUserId = 'admin-dummy-id'
+            const mockUser = {
+              id: mockUserId,
+              email: cleanEmail,
+              user_metadata: { full_name: 'Master Beekeeper (Admin)', role: 'admin' }
+            }
             const mockProfile = {
               id: mockUserId,
-              full_name: isAdmin ? 'Admin Beekeeper' : email.split('@')[0],
-              email,
-              phone: '',
-              role: isAdmin ? 'admin' : 'customer',
+              full_name: 'Master Beekeeper (Admin)',
+              email: cleanEmail,
+              phone: '+1 (555) 888-BEE1',
+              role: 'admin',
               created_at: new Date().toISOString()
             }
             setUser(mockUser)
             setProfile(mockProfile)
             localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-            return { user: mockUser, unconfirmedFallback: true }
+            return { user: mockUser, profile: mockProfile, isDummyAdmin: true }
           }
+
+          if (error.message?.toLowerCase().includes('email not confirmed')) {
+            const mockUserId = 'user-' + Date.now()
+            const mockUser = { id: mockUserId, email: cleanEmail }
+            const mockProfile = {
+              id: mockUserId,
+              full_name: isAdminEmail ? 'Master Beekeeper (Admin)' : cleanEmail.split('@')[0],
+              email: cleanEmail,
+              phone: '+1 (555) 888-BEE1',
+              role: isAdminEmail ? 'admin' : 'customer',
+              created_at: new Date().toISOString()
+            }
+            setUser(mockUser)
+            setProfile(mockProfile)
+            localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
+            return { user: mockUser, profile: mockProfile, unconfirmedFallback: true }
+          }
+
           throw error
         }
+
         if (data?.user) {
           setUser(data.user)
           await fetchProfile(data.user.id)
         }
         return data
       } catch (err) {
+        // Direct dummy admin fallback
+        if (isAdminEmail && isDummyPassword) {
+          const mockUserId = 'admin-dummy-id'
+          const mockUser = {
+            id: mockUserId,
+            email: cleanEmail,
+            user_metadata: { full_name: 'Master Beekeeper (Admin)', role: 'admin' }
+          }
+          const mockProfile = {
+            id: mockUserId,
+            full_name: 'Master Beekeeper (Admin)',
+            email: cleanEmail,
+            phone: '+1 (555) 888-BEE1',
+            role: 'admin',
+            created_at: new Date().toISOString()
+          }
+          setUser(mockUser)
+          setProfile(mockProfile)
+          localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
+          return { user: mockUser, profile: mockProfile, isDummyAdmin: true }
+        }
         if (err.unconfirmedFallback) return err
         throw err
       }
     }
 
     // Local Mock sign in
-    const isAdmin = email.toLowerCase().includes('admin')
-    const mockUserId = isAdmin ? 'admin-user-id' : 'demo-user-id'
-    const mockUser = { id: mockUserId, email }
+    const mockUserId = isAdminEmail ? 'admin-user-id' : 'demo-user-id'
+    const mockUser = { id: mockUserId, email: cleanEmail }
     const mockProfile = {
       id: mockUserId,
-      full_name: isAdmin ? 'Master Beekeeper (Admin)' : 'Honey Enthusiast',
-      email,
-      phone: '+1 (555) 234-5678',
-      role: isAdmin ? 'admin' : 'customer',
+      full_name: isAdminEmail ? 'Master Beekeeper (Admin)' : 'Honey Enthusiast',
+      email: cleanEmail,
+      phone: '+1 (555) 888-BEE1',
+      role: isAdminEmail ? 'admin' : 'customer',
       created_at: new Date().toISOString()
     }
     setUser(mockUser)
     setProfile(mockProfile)
     localStorage.setItem(LOCAL_USER_KEY, JSON.stringify({ user: mockUser, profile: mockProfile }))
-    return { user: mockUser }
+    return { user: mockUser, profile: mockProfile, isDummyAdmin: isAdminEmail }
   }
 
   // Demo Sign in (One-click for instant preview/testing)
