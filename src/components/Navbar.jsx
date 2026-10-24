@@ -120,39 +120,55 @@ export const Navbar = () => {
 
               {/* User Account / Profile */}
               {user ? (
-                <div className="relative group">
+                <div className="relative group flex items-center gap-2">
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-amberBrown-900 text-honey-200 hover:bg-amberBrown-950 font-bold text-xs rounded-xl shadow-xs transition-colors"
+                      title="Open Admin Dashboard"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-honey-400" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  )}
+
                   <Link
-                    to="/account"
+                    to={isAdmin ? "/admin" : "/account"}
                     className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-honey-100/70 hover:bg-honey-200/80 border border-honey-200 text-amberBrown-900 transition-colors"
                   >
                     <div className="w-7 h-7 rounded-full bg-honey-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
                       {profile?.full_name ? profile.full_name[0].toUpperCase() : 'U'}
                     </div>
                     <span className="hidden md:inline text-xs font-semibold max-w-[100px] truncate">
-                      {profile?.full_name || 'My Account'}
+                      {profile?.full_name || (isAdmin ? 'Admin' : 'My Account')}
                     </span>
+                    {isAdmin && (
+                      <span className="hidden lg:inline-flex px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-600 text-white">
+                        Admin
+                      </span>
+                    )}
                   </Link>
 
                   {/* Dropdown Menu on hover */}
-                  <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-soft-lg border border-honey-200 py-2 z-50 animate-fadeIn">
+                  <div className="hidden group-hover:block absolute right-0 top-full mt-1 w-52 bg-white rounded-2xl shadow-soft-lg border border-honey-200 py-2 z-50 animate-fadeIn">
                     <div className="px-4 py-2 border-b border-honey-100">
                       <p className="text-xs text-amberBrown-500">Signed in as</p>
                       <p className="text-xs font-bold text-amberBrown-900 truncate">{user.email}</p>
                     </div>
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border-b border-honey-100"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-amber-600" /> Admin Dashboard
+                      </Link>
+                    )}
                     <Link
                       to="/account"
                       className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-amberBrown-800 hover:bg-honey-50 hover:text-honey-700"
                     >
                       <User className="w-4 h-4" /> My Profile & Orders
                     </Link>
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-amber-700 hover:bg-amber-50"
-                      >
-                        <ShieldCheck className="w-4 h-4" /> Admin Dashboard
-                      </Link>
-                    )}
                     <button
                       onClick={signOut}
                       className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 text-left"

@@ -84,6 +84,37 @@ export const Account = () => {
   return (
     <div className="py-6 sm:py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       
+      {/* Admin Notice Banner if logged in user is admin */}
+      {isAdmin && (
+        <div className="bg-gradient-to-r from-amberBrown-900 via-amber-900 to-amberBrown-950 text-white rounded-3xl p-5 sm:p-6 shadow-honey-lg border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-honey-400">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif font-black text-base sm:text-lg text-honey-200">
+                  Master Beekeeper Admin Portal
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-amberBrown-950 uppercase tracking-wider">
+                  Admin Active
+                </span>
+              </div>
+              <p className="text-xs text-honey-300/80 mt-0.5">
+                You have administrative authority to manage products, view and update orders, moderate reviews, and configure crypto payments.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/admin"
+            className="w-full sm:w-auto px-5 py-3 bg-amber-gold-gradient text-amberBrown-950 font-black text-xs rounded-xl shadow-honey-md hover:scale-105 transition-all text-center flex items-center justify-center gap-2"
+          >
+            <span>Open Admin Dashboard</span>
+            <span>&rarr;</span>
+          </Link>
+        </div>
+      )}
+
       {/* Header Profile Greeting Card */}
       <div className="bg-gradient-to-r from-honey-100 via-cream-100 to-honey-200/90 rounded-3xl p-6 sm:p-8 border border-honey-300 shadow-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">

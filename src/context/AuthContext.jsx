@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
           const { data: { session } } = await supabase.auth.getSession()
           if (session?.user && mounted) {
             setUser(session.user)
-            await fetchProfile(session.user.id)
+            await fetchProfile(session.user.id, session.user)
           }
         } else {
           // Check local stored session
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
           setUser(session.user)
-          await fetchProfile(session.user.id)
+          await fetchProfile(session.user.id, session.user)
         } else {
           setUser(null)
           setProfile(null)
@@ -67,6 +67,11 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = async (userId, currentUser = null) => {
     if (!isSupabaseConfigured()) return
     const activeUser = currentUser || user
+    const isMasterAdmin =
+      activeUser?.email?.trim().toLowerCase() === 'admin@fellashoney.com' ||
+      activeUser?.user_metadata?.role === 'admin' ||
+      activeUser?.app_metadata?.role === 'admin'
+
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -75,15 +80,20 @@ export const AuthProvider = ({ children }) => {
         .single()
 
       if (!error && data) {
-        setProfile(data)
+        const finalProfile = isMasterAdmin ? { ...data, role: 'admin' } : data
+        setProfile(finalProfile)
+        // If it was supposed to be admin in DB but wasn't, sync role to admin in Supabase
+        if (isMasterAdmin && data.role !== 'admin') {
+          supabase.from('profiles').update({ role: 'admin' }).eq('id', userId).then(() => {})
+        }
       } else {
         // Fallback default profile and auto-sync into public.profiles
         const fallbackProf = {
           id: userId,
-          full_name: activeUser?.user_metadata?.full_name || 'Customer',
+          full_name: activeUser?.user_metadata?.full_name || (isMasterAdmin ? 'Master Beekeeper (Admin)' : 'Customer'),
           email: activeUser?.email,
-          phone: activeUser?.user_metadata?.phone || '',
-          role: activeUser?.user_metadata?.role || (activeUser?.email === 'admin@fellashoney.com' ? 'admin' : 'customer')
+          phone: activeUser?.user_metadata?.phone || '+1 (555) 888-BEE1',
+          role: isMasterAdmin ? 'admin' : (activeUser?.user_metadata?.role || 'customer')
         }
         setProfile(fallbackProf)
         try {
@@ -92,6 +102,14 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.warn('Fetch profile error:', err)
+      if (isMasterAdmin) {
+        setProfile({
+          id: userId,
+          full_name: 'Master Beekeeper (Admin)',
+          email: activeUser?.email,
+          role: 'admin'
+        })
+      }
     }
   }
 
@@ -378,7 +396,12 @@ export const AuthProvider = ({ children }) => {
     return true
   }
 
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = Boolean(
+    profile?.role === 'admin' ||
+    user?.user_metadata?.role === 'admin' ||
+    user?.app_metadata?.role === 'admin' ||
+    user?.email?.trim().toLowerCase() === 'admin@fellashoney.com'
+  )
 
   return (
     <AuthContext.Provider
